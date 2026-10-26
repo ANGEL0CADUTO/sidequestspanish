@@ -52,7 +52,10 @@ async function igToken() {
 }
 async function publishInstagram(id, c) {
   const token = await igToken();
-  const form = new URLSearchParams({ media_type: "REELS", video_url: `${MEDIA}/${id}.mp4`, caption: c.instagram, share_to_feed: "true", thumb_offset: "0", access_token: token });
+  // Our designed cover (release asset); TikTok has no image cover in its API, but
+  // the first frame of every Short is already the cover (video_cover_timestamp_ms 0).
+  const cover = c.cover ? { cover_url: `${MEDIA}/${id}-cover.jpg` } : { thumb_offset: "0" };
+  const form = new URLSearchParams({ media_type: "REELS", video_url: `${MEDIA}/${id}.mp4`, caption: c.instagram, share_to_feed: "true", ...cover, access_token: token });
   const container = await ig(`/${config.igUserId}/media`, { method: "POST", body: form });
   for (let i = 0; i < 60; i++) {
     const st = await ig(`/${container.id}?fields=status_code,status&access_token=${token}`);
