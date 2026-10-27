@@ -89,20 +89,34 @@ async function tt(path, token, body) {
   if (j.error?.code && j.error.code !== "ok") throw new Error(`TikTok ${path}: ${JSON.stringify(j.error).slice(0, 300)}`);
   return j.data;
 }
-async function publishTikTok(id, c) {
+// Direct Post uses only what the creator approved in the TikTok Studio
+// (language-story-studio: npm run social:studio), saved on the slot as s.tiktok.
+async function publishTikTok(id, c, approval) {
   const token = await ttToken();
   const video = Buffer.from(await (await fetch(`${MEDIA}/${id}.mp4`)).arrayBuffer());
   const source_info = { source: "FILE_UPLOAD", video_size: video.length, chunk_size: video.length, total_chunk_count: 1 };
   const direct = config.tiktokMode === "direct";
   let init;
   if (direct) {
+    // creator_info right before each post: the approved privacy must still be offered,
+    // and interactions the creator has since turned off stay off.
     const info = await tt("/post/publish/creator_info/query/", token, {});
-    const privacy = info.privacy_level_options.includes("PUBLIC_TO_EVERYONE") ? "PUBLIC_TO_EVERYONE" : info.privacy_level_options[0];
-    init = await tt("/post/publish/video/init/", token, { post_info: { title: c.tiktok, privacy_level: privacy, video_cover_timestamp_ms: 0 }, source_info });
+    if (!info.privacy_level_options.includes(approval.privacy_level)) throw new Error(`privacy ${approval.privacy_level} no longer available`);
+    const { creator, approvedAt, ...p } = approval;
+    if (creator && creator !== info.creator_username) throw new Error(`approved for @${creator}, connected as @${info.creator_username}`);
+    const post_info = { ...p, disable_comment: p.disable_comment || info.comment_disabled, disable_duet: p.disable_duet || info.duet_disabled, disable_stitch: p.disable_stitch || info.stitch_disabled, video_cover_timestamp_ms: 0 };
+    init = await tt("/post/publish/video/init/", token, { post_info, source_info });
   } else init = await tt("/post/publish/inbox/video/init/", token, { source_info });
   const put = await fetch(init.upload_url, { method: "PUT", headers: { "Content-Type": "video/mp4", "Content-Range": `bytes 0-${video.length - 1}/${video.length}` }, body: video });
   if (!put.ok) throw new Error(`TikTok upload ${put.status}`);
-  return `${direct ? "post" : "draft"}:${init.publish_id}`;
+  if (!direct) return `draft:${init.publish_id}`;
+  for (let i = 0; i < 24; i++) {
+    await wait(10000);
+    const st = await tt("/post/publish/status/fetch/", token, { publish_id: init.publish_id });
+    if (st.status === "PUBLISH_COMPLETE") return `post:${init.publish_id}${st.publicaly_available_post_id?.length ? ` video:${st.publicaly_available_post_id[0]}` : ""}`;
+    if (st.status === "FAILED") throw new Error(`TikTok publish failed: ${st.fail_reason}`);
+  }
+  return `post:${init.publish_id} (still processing)`;
 }
 
 // ---------------------------------------------------------------- due
@@ -114,10 +128,12 @@ async function due(dry) {
   const now = new Date().toISOString();
   let failures = 0;
   for (const s of schedule.filter((s) => s.at <= now && !done[`${s.platform}:${s.id}`] && ready[s.platform])) {
+    // Direct Post: a Short the creator has not approved yet waits (not an error).
+    if (s.platform === "tiktok" && config.tiktokMode === "direct" && !s.tiktok) { console.log(`tiktok ${s.id}: waiting for approval in the TikTok Studio`); continue; }
     console.log(`${s.platform} ${s.id} (due ${s.at})${dry ? " [dry]" : ""}`);
     if (dry) continue;
     try {
-      const ref = s.platform === "instagram" ? await publishInstagram(s.id, captions[s.id]) : await publishTikTok(s.id, captions[s.id]);
+      const ref = s.platform === "instagram" ? await publishInstagram(s.id, captions[s.id]) : await publishTikTok(s.id, captions[s.id], s.tiktok);
       done[`${s.platform}:${s.id}`] = { at: new Date().toISOString(), ref };
       write(`${D}/published.json`, done);
       console.log("  ok", ref);
