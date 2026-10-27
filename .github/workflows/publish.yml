@@ -2,7 +2,7 @@ name: Publish Shorts
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "17 * * * *" # hourly fallback; punctual runs come from the Cloudflare Worker (cloudflare/)
   workflow_dispatch:
 
 permissions:
