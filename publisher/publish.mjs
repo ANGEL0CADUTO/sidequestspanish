@@ -124,7 +124,8 @@ async function due(dry) {
   const captions = read(`${D}/captions.json`, {});
   const schedule = read(`${D}/schedule.json`, []);
   const done = read(`${D}/published.json`, {});
-  const ready = { instagram: !!tokens.ig && !!config.igUserId, tiktok: !!tokens.ttRefresh };
+  // tiktokMode "off": TikTok is posted by hand from TikTok Studio (before the audit).
+  const ready = { instagram: !!tokens.ig && !!config.igUserId, tiktok: !!tokens.ttRefresh && config.tiktokMode !== "off" };
   const now = new Date().toISOString();
   let failures = 0;
   for (const s of schedule.filter((s) => s.at <= now && !done[`${s.platform}:${s.id}`] && ready[s.platform])) {
