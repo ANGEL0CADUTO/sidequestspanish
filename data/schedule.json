@@ -1,28 +1,8 @@
 [
   {
-    "id": "ff-groseria",
-    "platform": "instagram",
-    "at": "2026-10-30T17:00:00.000Z"
-  },
-  {
-    "id": "ff-groseria",
-    "platform": "tiktok",
-    "at": "2026-10-30T17:00:00.000Z"
-  },
-  {
-    "id": "literal-01",
-    "platform": "instagram",
-    "at": "2026-10-31T11:30:00.000Z"
-  },
-  {
     "id": "literal-01",
     "platform": "tiktok",
     "at": "2026-10-31T11:30:00.000Z"
-  },
-  {
-    "id": "hack-01",
-    "platform": "instagram",
-    "at": "2026-10-31T17:00:00.000Z"
   },
   {
     "id": "hack-01",
@@ -31,18 +11,8 @@
   },
   {
     "id": "quiz-01",
-    "platform": "instagram",
-    "at": "2026-11-01T11:30:00.000Z"
-  },
-  {
-    "id": "quiz-01",
     "platform": "tiktok",
     "at": "2026-11-01T11:30:00.000Z"
-  },
-  {
-    "id": "dialect-01",
-    "platform": "instagram",
-    "at": "2026-11-01T17:00:00.000Z"
   },
   {
     "id": "dialect-01",
@@ -208,5 +178,65 @@
     "id": "dialect-04",
     "platform": "tiktok",
     "at": "2026-11-09T17:00:00.000Z"
+  },
+  {
+    "id": "ff7-anos",
+    "platform": "instagram",
+    "at": "2026-11-10T11:30:00.000Z"
+  },
+  {
+    "id": "ff7-anos",
+    "platform": "tiktok",
+    "at": "2026-11-10T11:30:00.000Z"
+  },
+  {
+    "id": "ff7-coger",
+    "platform": "instagram",
+    "at": "2026-11-10T17:00:00.000Z"
+  },
+  {
+    "id": "ff7-coger",
+    "platform": "tiktok",
+    "at": "2026-11-10T17:00:00.000Z"
+  },
+  {
+    "id": "ff7-huevos",
+    "platform": "instagram",
+    "at": "2026-11-11T11:30:00.000Z"
+  },
+  {
+    "id": "ff7-huevos",
+    "platform": "tiktok",
+    "at": "2026-11-11T11:30:00.000Z"
+  },
+  {
+    "id": "ff7-casado",
+    "platform": "instagram",
+    "at": "2026-11-11T17:00:00.000Z"
+  },
+  {
+    "id": "ff7-casado",
+    "platform": "tiktok",
+    "at": "2026-11-11T17:00:00.000Z"
+  },
+  {
+    "id": "ff7-papa",
+    "platform": "instagram",
+    "at": "2026-11-12T11:30:00.000Z"
+  },
+  {
+    "id": "ff7-papa",
+    "platform": "tiktok",
+    "at": "2026-11-12T11:30:00.000Z"
+  },
+  {
+    "id": "ff7-pecado",
+    "platform": "instagram",
+    "at": "2026-11-12T17:00:00.000Z"
+  },
+  {
+    "id": "ff7-pecado",
+    "platform": "tiktok",
+    "at": "2026-11-12T17:00:00.000Z"
   }
 ]
