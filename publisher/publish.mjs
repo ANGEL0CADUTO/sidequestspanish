@@ -31,7 +31,7 @@ function sealTokens(t) {
   const data = Buffer.concat([c.update(JSON.stringify(t)), c.final()]);
   fs.writeFileSync(`${D}/tokens.enc`, [iv, c.getAuthTag(), data].map((b) => b.toString("base64")).join(".") + "\n");
 }
-const tokens = process.argv[2] === "seal" ? {} : openTokens();
+const tokens = process.argv[2] === "due" ? openTokens() : {};
 
 // ---------------------------------------------------------------- Instagram
 async function ig(path, init) {
@@ -119,22 +119,80 @@ async function publishTikTok(id, c, approval) {
   return `post:${init.publish_id} (still processing)`;
 }
 
+// ---------------------------------------------------------------- TikTok via Zernio
+// Our own TikTok app was rejected for Direct Post (4/11: "personal use apps are not
+// eligible"), so public posts go through Zernio, whose TikTok app is audited.
+// Secret ZERNIO_API_KEY; config.zernioTiktokAccountId from `node publisher/publish.mjs zernio-accounts`.
+const ZERNIO = "https://zernio.com/api/v1";
+async function zernio(path, init = {}) {
+  const r = await fetch(`${ZERNIO}${path}`, { ...init, headers: { Authorization: `Bearer ${process.env.ZERNIO_API_KEY}`, "Content-Type": "application/json", ...init.headers } });
+  const text = await r.text();
+  if (!r.ok) throw new Error(`Zernio ${path} ${r.status}: ${text.slice(0, 300)}`);
+  return text ? JSON.parse(text) : {};
+}
+async function publishTikTokZernio(id, c) {
+  const accountId = config.zernioTiktokAccountId;
+  if (!c?.tiktok) throw new Error(`no TikTok caption for ${id}`);
+  // Interactions the creator has turned off on TikTok stay off.
+  const info = await zernio(`/accounts/${accountId}/tiktok/creator-info?mediaType=video`).catch(() => null);
+  if (info?.creator?.canPostMore === false) throw new Error("TikTok says the creator cannot post more right now");
+  const on = (k) => info?.postingLimits?.interactionSettings?.[`allow_${k}`]?.enabled !== false;
+  const privacy = config.tiktokPrivacy ?? "PUBLIC_TO_EVERYONE";
+  const offered = info?.privacyLevels?.map((p) => p.value ?? p);
+  if (offered && !offered.includes(privacy)) throw new Error(`privacy ${privacy} not offered: ${offered}`);
+  const j = await zernio("/posts", {
+    method: "POST",
+    body: JSON.stringify({
+      content: c.tiktok,
+      mediaItems: [{ type: "video", url: `${MEDIA}/${id}.mp4` }],
+      platforms: [{ platform: "tiktok", accountId }],
+      tiktokSettings: {
+        privacy_level: privacy,
+        allow_comment: on("comment"),
+        allow_duet: on("duet"),
+        allow_stitch: on("stitch"),
+        video_cover_timestamp_ms: 0, // the frog Shorts open on their cover
+        content_preview_confirmed: true,
+        express_consent_given: true,
+      },
+      publishNow: true,
+    }),
+  });
+  let p = j.post ?? j;
+  // The first answer usually says "uploading": wait for the final state (up to 5 min).
+  for (let i = 0; i < 20 && !["published", "failed", "error"].includes(p.platforms?.[0]?.status ?? p.status); i++) {
+    await wait(15000);
+    p = (await zernio(`/posts/${p._id}`)).post ?? p;
+  }
+  const st = p.platforms?.[0]?.status ?? p.status;
+  if (st === "failed" || st === "error") throw new Error(`Zernio post failed: ${JSON.stringify(p).slice(0, 300)}`);
+  return `zernio:${p._id} ${st}${p.platforms?.[0]?.platformPostUrl ? ` ${p.platforms[0].platformPostUrl}` : ""}`;
+}
+
 // ---------------------------------------------------------------- due
 async function due(dry) {
   const captions = read(`${D}/captions.json`, {});
   const schedule = read(`${D}/schedule.json`, []);
   const done = read(`${D}/published.json`, {});
   // tiktokMode "off": TikTok is posted by hand from TikTok Studio (before the audit).
-  const ready = { instagram: !!tokens.ig && !!config.igUserId, tiktok: !!tokens.ttRefresh && config.tiktokMode !== "off" };
+  // tiktokMode "zernio": public posts through Zernio (see above).
+  const viaZernio = config.tiktokMode === "zernio";
+  const ready = {
+    instagram: !!tokens.ig && !!config.igUserId,
+    tiktok: viaZernio ? !!process.env.ZERNIO_API_KEY && !!config.zernioTiktokAccountId : !!tokens.ttRefresh && !["off", "zernio"].includes(config.tiktokMode),
+  };
   const now = new Date().toISOString();
+  const stale = new Date(Date.now() - 6 * 3600e3).toISOString();
   let failures = 0;
   for (const s of schedule.filter((s) => s.at <= now && !done[`${s.platform}:${s.id}`] && ready[s.platform])) {
+    // Zernio: a slot more than 6 h late is never posted in a burst; it waits to be rescheduled.
+    if (s.platform === "tiktok" && viaZernio && s.at < stale) { console.log(`tiktok ${s.id}: missed (due ${s.at}), reschedule it`); continue; }
     // Direct Post: a Short the creator has not approved yet waits (not an error).
     if (s.platform === "tiktok" && config.tiktokMode === "direct" && !s.tiktok) { console.log(`tiktok ${s.id}: waiting for approval in the TikTok Studio`); continue; }
     console.log(`${s.platform} ${s.id} (due ${s.at})${dry ? " [dry]" : ""}`);
     if (dry) continue;
     try {
-      const ref = s.platform === "instagram" ? await publishInstagram(s.id, captions[s.id]) : await publishTikTok(s.id, captions[s.id], s.tiktok);
+      const ref = s.platform === "instagram" ? await publishInstagram(s.id, captions[s.id]) : viaZernio ? await publishTikTokZernio(s.id, captions[s.id]) : await publishTikTok(s.id, captions[s.id], s.tiktok);
       done[`${s.platform}:${s.id}`] = { at: new Date().toISOString(), ref };
       write(`${D}/published.json`, done);
       console.log("  ok", ref);
@@ -149,5 +207,7 @@ async function due(dry) {
 
 const [cmd, arg] = process.argv.slice(2);
 if (cmd === "due") await due(process.argv.includes("--dry"));
+else if (cmd === "zernio-accounts") console.log(JSON.stringify(await zernio("/accounts"), null, 2));
+else if (cmd === "zernio-post" && arg) console.log(await publishTikTokZernio(arg, read(`${D}/captions.json`, {})[arg]));
 else if (cmd === "seal" && arg) { sealTokens(JSON.parse(fs.readFileSync(arg, "utf8"))); console.log("sealed"); }
 else console.log("Usage: due [--dry] | seal <tokens.json>");

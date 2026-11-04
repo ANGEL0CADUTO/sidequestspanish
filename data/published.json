@@ -52,16 +52,12 @@
     "ref": "https://www.instagram.com/reel/DfHeur0DCMF/"
   },
   "tiktok:ff-introducir": {
-    "at": "2026-10-30T11:31:45.629Z",
-    "ref": "draft:v_inbox_file~v2.7702422070513076246"
+    "at": "2026-11-04T18:31:33.701Z",
+    "ref": "zernio:6aeb79b18d75be0c481938d6 published"
   },
   "instagram:ff-groseria": {
     "at": "2026-10-30T17:01:40.598Z",
     "ref": "https://www.instagram.com/reel/DfIEf01lXuH/"
-  },
-  "tiktok:ff-groseria": {
-    "at": "2026-10-30T17:01:44.279Z",
-    "ref": "draft:v_inbox_file~v2.7702507122613061654"
   },
   "instagram:literal-01": {
     "at": "2026-10-31T11:32:03.965Z",
@@ -102,5 +98,61 @@
   "instagram:dialect-02": {
     "at": "2026-11-04T17:02:34.434Z",
     "ref": "https://www.instagram.com/reel/DfU8k15FXUl/"
+  },
+  "tiktok:hack-02": {
+    "at": "2026-11-04T18:31:33.701Z",
+    "ref": "manual:tiktok-studio"
+  },
+  "tiktok:quiz-02": {
+    "at": "2026-11-04T18:31:33.701Z",
+    "ref": "manual:tiktok-studio"
+  },
+  "tiktok:ff-largo": {
+    "at": "2026-11-04T18:31:33.701Z",
+    "ref": "manual:tiktok-studio"
+  },
+  "tiktok:dialect-02": {
+    "at": "2026-11-04T18:31:33.701Z",
+    "ref": "manual:tiktok-studio"
+  },
+  "tiktok:hack-03": {
+    "at": "2026-11-04T18:31:33.701Z",
+    "ref": "manual:tiktok-studio"
+  },
+  "tiktok:quiz-03": {
+    "at": "2026-11-04T18:31:33.701Z",
+    "ref": "manual:tiktok-studio"
+  },
+  "tiktok:ff-carpeta": {
+    "at": "2026-11-04T18:31:33.701Z",
+    "ref": "manual:tiktok-studio"
+  },
+  "tiktok:dialect-03": {
+    "at": "2026-11-04T18:31:33.701Z",
+    "ref": "manual:tiktok-studio"
+  },
+  "tiktok:literal-04": {
+    "at": "2026-11-04T18:31:33.701Z",
+    "ref": "manual:tiktok-studio"
+  },
+  "tiktok:hack-04": {
+    "at": "2026-11-04T18:31:33.701Z",
+    "ref": "manual:tiktok-studio"
+  },
+  "tiktok:quiz-04": {
+    "at": "2026-11-04T18:31:33.701Z",
+    "ref": "manual:tiktok-studio"
+  },
+  "tiktok:dialect-04": {
+    "at": "2026-11-04T18:31:33.701Z",
+    "ref": "manual:tiktok-studio"
+  },
+  "tiktok:ff7-papa": {
+    "at": "2026-11-04T18:31:33.701Z",
+    "ref": "manual:tiktok-studio"
+  },
+  "tiktok:ff7-pecado": {
+    "at": "2026-11-04T18:31:33.701Z",
+    "ref": "manual:tiktok-studio"
   }
 }

@@ -26,6 +26,7 @@ jobs:
           TOKEN_KEY: ${{ secrets.TOKEN_KEY }}
           TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
           TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
+          ZERNIO_API_KEY: ${{ secrets.ZERNIO_API_KEY }}
         run: node publisher/publish.mjs due
       - name: Save results and renewed tokens
         if: always()
