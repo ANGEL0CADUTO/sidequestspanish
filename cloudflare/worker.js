@@ -8,13 +8,24 @@ const RAW = `https://raw.githubusercontent.com/${REPO}/main/data`;
 
 async function check(env) {
   const bust = `?t=${Date.now()}`;
-  const [schedule, done, config] = await Promise.all(
-    ["schedule.json", "published.json", "config.json"].map((f) => fetch(`${RAW}/${f}${bust}`).then((r) => r.json())),
+  const [schedule, done, config, alerts] = await Promise.all(
+    ["schedule.json", "published.json", "config.json", "alerts.json"].map((f) =>
+      fetch(`${RAW}/${f}${bust}`).then((r) => (r.ok ? r.json() : {})),
+    ),
   );
   const now = new Date().toISOString();
-  // TikTok in direct mode only posts what was approved in the studio.
-  const due = schedule.filter(
-    (s) => s.at <= now && !done[`${s.platform}:${s.id}`] && (s.platform !== "tiktok" || config.tiktokMode !== "direct" || s.tiktok),
+  // Same rules as publisher/publish.mjs: slots more than 6 h late wait to be rescheduled,
+  // platforms with a dead login (alerts.json) are paused, TikTok in direct mode only
+  // posts what was approved in the studio. Without them the Worker would dispatch a
+  // useless (or failing) run every 5 minutes forever.
+  const stale = new Date(Date.now() - 6 * 3600e3).toISOString();
+  const due = (Array.isArray(schedule) ? schedule : []).filter(
+    (s) =>
+      s.at <= now &&
+      s.at >= stale &&
+      !done[`${s.platform}:${s.id}`] &&
+      !alerts[s.platform] &&
+      (s.platform !== "tiktok" || config.tiktokMode !== "direct" || s.tiktok),
   );
   if (!due.length) return "nothing due";
   const r = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/publish.yml/dispatches`, {

@@ -37,7 +37,12 @@ const tokens = process.argv[2] === "due" ? openTokens() : {};
 async function ig(path, init) {
   const r = await fetch(`${IG}${path}`, init);
   const j = await r.json();
-  if (!r.ok || j.error) throw new Error(`Instagram ${path.split("?")[0]}: ${JSON.stringify(j.error ?? j).slice(0, 300)}`);
+  if (!r.ok || j.error) {
+    const e = new Error(`Instagram ${path.split("?")[0]}: ${JSON.stringify(j.error ?? j).slice(0, 300)}`);
+    // 190 = token expired or invalidated (password change, Meta security reset): only a new token fixes it.
+    e.auth = j.error?.code === 190 || j.error?.type === "OAuthException";
+    throw e;
+  }
   return j;
 }
 async function igToken() {
@@ -174,19 +179,23 @@ async function due(dry) {
   const captions = read(`${D}/captions.json`, {});
   const schedule = read(`${D}/schedule.json`, []);
   const done = read(`${D}/published.json`, {});
+  // alerts.json: platforms paused because their login is dead. One red run (one email) when
+  // the alert opens, then the platform is skipped until `seal` stores a new token.
+  const alerts = read(`${D}/alerts.json`, {});
   // tiktokMode "off": TikTok is posted by hand from TikTok Studio (before the audit).
   // tiktokMode "zernio": public posts through Zernio (see above).
   const viaZernio = config.tiktokMode === "zernio";
   const ready = {
-    instagram: !!tokens.ig && !!config.igUserId,
+    instagram: !!tokens.ig && !!config.igUserId && !alerts.instagram,
     tiktok: viaZernio ? !!process.env.ZERNIO_API_KEY && !!config.zernioTiktokAccountId : !!tokens.ttRefresh && !["off", "zernio"].includes(config.tiktokMode),
   };
   const now = new Date().toISOString();
   const stale = new Date(Date.now() - 6 * 3600e3).toISOString();
   let failures = 0;
+  if (alerts.instagram) console.log(`instagram paused since ${alerts.instagram.since}: reconnect it (new token + seal)`);
   for (const s of schedule.filter((s) => s.at <= now && !done[`${s.platform}:${s.id}`] && ready[s.platform])) {
-    // Zernio: a slot more than 6 h late is never posted in a burst; it waits to be rescheduled.
-    if (s.platform === "tiktok" && viaZernio && s.at < stale) { console.log(`tiktok ${s.id}: missed (due ${s.at}), reschedule it`); continue; }
+    // A slot more than 6 h late is never posted in a burst; it waits to be rescheduled.
+    if (s.at < stale) { console.log(`${s.platform} ${s.id}: missed (due ${s.at}), reschedule it`); continue; }
     // Direct Post: a Short the creator has not approved yet waits (not an error).
     if (s.platform === "tiktok" && config.tiktokMode === "direct" && !s.tiktok) { console.log(`tiktok ${s.id}: waiting for approval in the TikTok Studio`); continue; }
     console.log(`${s.platform} ${s.id} (due ${s.at})${dry ? " [dry]" : ""}`);
@@ -199,9 +208,14 @@ async function due(dry) {
     } catch (e) {
       failures++;
       console.error("  FAILED", e.message);
+      if (s.platform === "instagram" && e.auth) {
+        alerts.instagram = { since: new Date().toISOString(), error: e.message.slice(0, 300) };
+        write(`${D}/alerts.json`, alerts);
+        console.error("  Instagram paused: the token is dead. Generate a new one and run `seal`.");
+      }
     }
   }
-  if (!dry) await igToken().catch((e) => console.error("token renewal:", e.message));
+  if (!dry && !alerts.instagram) await igToken().catch((e) => console.error("token renewal:", e.message));
   if (failures) process.exitCode = 1; // the run shows red and GitHub emails the owner
 }
 
@@ -209,5 +223,12 @@ const [cmd, arg] = process.argv.slice(2);
 if (cmd === "due") await due(process.argv.includes("--dry"));
 else if (cmd === "zernio-accounts") console.log(JSON.stringify(await zernio("/accounts"), null, 2));
 else if (cmd === "zernio-post" && arg) console.log(await publishTikTokZernio(arg, read(`${D}/captions.json`, {})[arg]));
-else if (cmd === "seal" && arg) { sealTokens(JSON.parse(fs.readFileSync(arg, "utf8"))); console.log("sealed"); }
+else if (cmd === "seal" && arg) {
+  const t = JSON.parse(fs.readFileSync(arg, "utf8"));
+  sealTokens(t);
+  // A new Instagram token reopens the platform.
+  const alerts = read(`${D}/alerts.json`, {});
+  if (t.ig && alerts.instagram) { delete alerts.instagram; write(`${D}/alerts.json`, alerts); console.log("instagram alert cleared"); }
+  console.log("sealed");
+}
 else console.log("Usage: due [--dry] | seal <tokens.json>");
