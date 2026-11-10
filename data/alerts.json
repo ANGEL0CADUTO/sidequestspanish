@@ -1,0 +1,6 @@
+{
+  "instagram": {
+    "since": "2026-11-10T22:10:09.549Z",
+    "error": "Instagram /17841467860973289/media: {\"message\":\"Error validating access token: The session has been invalidated because the user changed their password or Facebook has changed the session for security reasons.\",\"type\":\"OAuthException\",\"code\":190,\"error_subcode\":0,\"fbtrace_id\":\"AafYLbfOlICjw-mXiEe4rj"
+  }
+}
