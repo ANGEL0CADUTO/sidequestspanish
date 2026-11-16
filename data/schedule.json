@@ -1,267 +1,62 @@
 [
   {
-    "id": "hack-02",
+    "id": "ff8-gustas",
     "platform": "instagram",
-    "at": "2026-11-03T11:30:00.000Z"
+    "at": "2026-11-17T17:00:00.000Z"
   },
   {
-    "id": "hack-02",
+    "id": "ff8-gustas",
     "platform": "tiktok",
-    "at": "2026-11-03T11:30:00.000Z"
+    "at": "2026-11-17T17:00:00.000Z"
   },
   {
-    "id": "quiz-02",
+    "id": "sl-01",
     "platform": "instagram",
-    "at": "2026-11-03T17:00:00.000Z"
+    "at": "2026-11-18T17:00:00.000Z"
   },
   {
-    "id": "quiz-02",
+    "id": "sl-01",
     "platform": "tiktok",
-    "at": "2026-11-03T17:00:00.000Z"
+    "at": "2026-11-18T17:00:00.000Z"
   },
   {
-    "id": "ff-largo",
+    "id": "ff8-bueno",
     "platform": "instagram",
-    "at": "2026-11-04T11:30:00.000Z"
+    "at": "2026-11-19T17:00:00.000Z"
   },
   {
-    "id": "ff-largo",
+    "id": "ff8-bueno",
     "platform": "tiktok",
-    "at": "2026-11-04T11:30:00.000Z"
+    "at": "2026-11-19T17:00:00.000Z"
   },
   {
-    "id": "dialect-02",
+    "id": "ff8-pagar",
     "platform": "instagram",
-    "at": "2026-11-04T17:00:00.000Z"
+    "at": "2026-11-20T17:00:00.000Z"
   },
   {
-    "id": "dialect-02",
+    "id": "ff8-pagar",
     "platform": "tiktok",
-    "at": "2026-11-04T17:00:00.000Z"
+    "at": "2026-11-20T17:00:00.000Z"
   },
   {
-    "id": "literal-03-v6",
+    "id": "sl-02",
     "platform": "instagram",
-    "at": "2026-11-05T11:30:00.000Z"
+    "at": "2026-11-21T17:00:00.000Z"
   },
   {
-    "id": "literal-03-v6",
+    "id": "sl-02",
     "platform": "tiktok",
-    "at": "2026-11-05T11:30:00.000Z"
+    "at": "2026-11-21T17:00:00.000Z"
   },
   {
-    "id": "ff-actualmente",
+    "id": "ff8-vaso",
     "platform": "instagram",
-    "at": "2026-11-05T17:00:00.000Z"
+    "at": "2026-11-22T17:00:00.000Z"
   },
   {
-    "id": "ff-actualmente",
+    "id": "ff8-vaso",
     "platform": "tiktok",
-    "at": "2026-11-05T17:00:00.000Z"
-  },
-  {
-    "id": "ff-groseria",
-    "platform": "tiktok",
-    "at": "2026-11-05T20:00:00.000Z"
-  },
-  {
-    "id": "hack-03",
-    "platform": "instagram",
-    "at": "2026-11-06T11:30:00.000Z"
-  },
-  {
-    "id": "hack-03",
-    "platform": "tiktok",
-    "at": "2026-11-06T11:30:00.000Z"
-  },
-  {
-    "id": "quiz-03",
-    "platform": "instagram",
-    "at": "2026-11-06T17:00:00.000Z"
-  },
-  {
-    "id": "quiz-03",
-    "platform": "tiktok",
-    "at": "2026-11-06T17:00:00.000Z"
-  },
-  {
-    "id": "literal-01",
-    "platform": "tiktok",
-    "at": "2026-11-06T20:00:00.000Z"
-  },
-  {
-    "id": "ff-carpeta",
-    "platform": "instagram",
-    "at": "2026-11-07T11:30:00.000Z"
-  },
-  {
-    "id": "ff-carpeta",
-    "platform": "tiktok",
-    "at": "2026-11-07T11:30:00.000Z"
-  },
-  {
-    "id": "dialect-03",
-    "platform": "instagram",
-    "at": "2026-11-07T17:00:00.000Z"
-  },
-  {
-    "id": "dialect-03",
-    "platform": "tiktok",
-    "at": "2026-11-07T17:00:00.000Z"
-  },
-  {
-    "id": "hack-01",
-    "platform": "tiktok",
-    "at": "2026-11-07T20:00:00.000Z"
-  },
-  {
-    "id": "literal-04",
-    "platform": "instagram",
-    "at": "2026-11-08T11:30:00.000Z"
-  },
-  {
-    "id": "literal-04",
-    "platform": "tiktok",
-    "at": "2026-11-08T11:30:00.000Z"
-  },
-  {
-    "id": "hack-04",
-    "platform": "instagram",
-    "at": "2026-11-08T17:00:00.000Z"
-  },
-  {
-    "id": "hack-04",
-    "platform": "tiktok",
-    "at": "2026-11-08T17:00:00.000Z"
-  },
-  {
-    "id": "quiz-01",
-    "platform": "tiktok",
-    "at": "2026-11-08T20:00:00.000Z"
-  },
-  {
-    "id": "quiz-04",
-    "platform": "instagram",
-    "at": "2026-11-09T11:30:00.000Z"
-  },
-  {
-    "id": "quiz-04",
-    "platform": "tiktok",
-    "at": "2026-11-09T11:30:00.000Z"
-  },
-  {
-    "id": "dialect-04",
-    "platform": "instagram",
-    "at": "2026-11-09T17:00:00.000Z"
-  },
-  {
-    "id": "dialect-04",
-    "platform": "tiktok",
-    "at": "2026-11-09T17:00:00.000Z"
-  },
-  {
-    "id": "dialect-01",
-    "platform": "tiktok",
-    "at": "2026-11-09T20:00:00.000Z"
-  },
-  {
-    "id": "ff7-anos",
-    "platform": "tiktok",
-    "at": "2026-11-10T11:30:00.000Z"
-  },
-  {
-    "id": "ff7-coger",
-    "platform": "tiktok",
-    "at": "2026-11-10T17:00:00.000Z"
-  },
-  {
-    "id": "literal-02",
-    "platform": "tiktok",
-    "at": "2026-11-10T20:00:00.000Z"
-  },
-  {
-    "id": "ff7-huevos",
-    "platform": "instagram",
-    "at": "2026-11-11T11:30:00.000Z"
-  },
-  {
-    "id": "ff7-huevos",
-    "platform": "tiktok",
-    "at": "2026-11-11T11:30:00.000Z"
-  },
-  {
-    "id": "ff7-casado",
-    "platform": "instagram",
-    "at": "2026-11-11T17:00:00.000Z"
-  },
-  {
-    "id": "ff7-casado",
-    "platform": "tiktok",
-    "at": "2026-11-11T17:00:00.000Z"
-  },
-  {
-    "id": "ff7-anos",
-    "platform": "instagram",
-    "at": "2026-11-11T20:00:00.000Z"
-  },
-  {
-    "id": "ff-molestar",
-    "platform": "tiktok",
-    "at": "2026-11-11T20:00:00.000Z"
-  },
-  {
-    "id": "ff7-papa",
-    "platform": "instagram",
-    "at": "2026-11-12T11:30:00.000Z"
-  },
-  {
-    "id": "ff7-papa",
-    "platform": "tiktok",
-    "at": "2026-11-12T11:30:00.000Z"
-  },
-  {
-    "id": "ff7-pecado",
-    "platform": "instagram",
-    "at": "2026-11-12T17:00:00.000Z"
-  },
-  {
-    "id": "ff7-pecado",
-    "platform": "tiktok",
-    "at": "2026-11-12T17:00:00.000Z"
-  },
-  {
-    "id": "ff7-coger",
-    "platform": "instagram",
-    "at": "2026-11-12T20:00:00.000Z"
-  },
-  {
-    "id": "lez1-caliente",
-    "platform": "instagram",
-    "at": "2026-11-13T11:30:00.000Z"
-  },
-  {
-    "id": "lez1-caliente",
-    "platform": "tiktok",
-    "at": "2026-11-13T11:30:00.000Z"
-  },
-  {
-    "id": "lez1-rica",
-    "platform": "instagram",
-    "at": "2026-11-13T17:00:00.000Z"
-  },
-  {
-    "id": "lez1-rica",
-    "platform": "tiktok",
-    "at": "2026-11-13T17:00:00.000Z"
-  },
-  {
-    "id": "lez1-mala",
-    "platform": "instagram",
-    "at": "2026-11-14T11:30:00.000Z"
-  },
-  {
-    "id": "lez1-mala",
-    "platform": "tiktok",
-    "at": "2026-11-14T11:30:00.000Z"
+    "at": "2026-11-22T17:00:00.000Z"
   }
 ]
