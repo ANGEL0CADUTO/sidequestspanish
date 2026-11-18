@@ -318,5 +318,9 @@
   "tiktok:sl-01": {
     "at": "2026-11-18T17:02:20.370Z",
     "ref": "zernio:6afdd9fac0a280ae0b5ccd99 published"
+  },
+  "ytcomment:sl-01": {
+    "at": "2026-11-18T17:11:03.093Z",
+    "ref": "youtube-comment:UgzNYGnnwiMcLgSNoyV4AaABAg"
   }
 }
