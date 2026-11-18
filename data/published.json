@@ -302,5 +302,13 @@
   "tiktok:ff8-gustas": {
     "at": "2026-11-17T17:02:15.107Z",
     "ref": "zernio:6afc8878a20d04d5cf488f09 published"
+  },
+  "igcomment:ff8-gustas": {
+    "at": "2026-11-18T11:28:37.589Z",
+    "ref": "ig-comment:18020025404972372 (by hand)"
+  },
+  "ttcomment:ff8-gustas": {
+    "at": "2026-11-18T11:28:37.590Z",
+    "ref": "tt-comment:7709230810004161313 (by hand)"
   }
 }

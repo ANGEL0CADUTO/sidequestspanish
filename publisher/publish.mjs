@@ -203,6 +203,34 @@ async function commentYouTube(s) {
   return `youtube-comment:${j.id}`;
 }
 
+// ---------------------------------------------------------------- IG / TikTok comments
+// A comment under our own reel / TikTok once it is out: { id, platform: "igcomment" |
+// "ttcomment", at, text }. The post is found from published.json (instagram:<id> /
+// tiktok:<id>); if it is not published yet the run fails and the next one retries.
+async function commentInstagram(s, done) {
+  const link = done[`instagram:${s.id}`]?.ref;
+  if (!link) throw new Error(`instagram ${s.id} not published yet`);
+  const code = link.split("/").filter(Boolean).pop();
+  const token = await igToken();
+  const m = await ig(`/me/media?fields=id,permalink&limit=25&access_token=${token}`);
+  const media = (m.data ?? []).find((x) => x.permalink?.includes(code));
+  if (!media) throw new Error(`instagram ${s.id}: media ${code} not found`);
+  const r = await fetch(`${IG}/${media.id}/comments`, { method: "POST", body: new URLSearchParams({ message: s.text, access_token: token }) });
+  const j = await r.json();
+  if (!r.ok) throw new Error(`instagram comment ${r.status}: ${JSON.stringify(j).slice(0, 200)}`);
+  return `ig-comment:${j.id}`;
+}
+async function commentTikTok(s, done) {
+  const postId = done[`tiktok:${s.id}`]?.ref?.match(/^zernio:(S+)/)?.[1];
+  if (!postId) throw new Error(`tiktok ${s.id} not published yet`);
+  const j = await zernio(`/inbox/comments/${postId}`, {
+    method: "POST",
+    headers: { "Idempotency-Key": `sq-${s.id}-ttcomment` },
+    body: JSON.stringify({ accountId: config.zernioTiktokAccountId, message: s.text }),
+  });
+  return `tt-comment:${j.data?.commentId ?? "?"}`;
+}
+
 // ---------------------------------------------------------------- due
 async function due(dry) {
   const captions = read(`${D}/captions.json`, {});
@@ -217,6 +245,8 @@ async function due(dry) {
   const ready = {
     instagram: !!tokens.ig && !!config.igUserId && !alerts.instagram,
     ytcomment: !!tokens.yt?.refresh && !alerts.ytcomment,
+    igcomment: !!tokens.ig && !alerts.instagram,
+    ttcomment: !!process.env.ZERNIO_API_KEY && !!config.zernioTiktokAccountId,
     tiktok: viaZernio ? !!process.env.ZERNIO_API_KEY && !!config.zernioTiktokAccountId : !!tokens.ttRefresh && !["off", "zernio"].includes(config.tiktokMode),
   };
   const now = new Date().toISOString();
@@ -231,7 +261,7 @@ async function due(dry) {
     console.log(`${s.platform} ${s.id} (due ${s.at})${dry ? " [dry]" : ""}`);
     if (dry) continue;
     try {
-      const ref = s.platform === "ytcomment" ? await commentYouTube(s) : s.platform === "instagram" ? await publishInstagram(s.id, captions[s.id]) : viaZernio ? await publishTikTokZernio(s.id, captions[s.id]) : await publishTikTok(s.id, captions[s.id], s.tiktok);
+      const ref = s.platform === "ytcomment" ? await commentYouTube(s) : s.platform === "igcomment" ? await commentInstagram(s, done) : s.platform === "ttcomment" ? await commentTikTok(s, done) : s.platform === "instagram" ? await publishInstagram(s.id, captions[s.id]) : viaZernio ? await publishTikTokZernio(s.id, captions[s.id]) : await publishTikTok(s.id, captions[s.id], s.tiktok);
       done[`${s.platform}:${s.id}`] = { at: new Date().toISOString(), ref };
       write(`${D}/published.json`, done);
       console.log("  ok", ref);
