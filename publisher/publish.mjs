@@ -1,4 +1,4 @@
-// Side Quest Spanish: publishes the Shorts that are due on Instagram and TikTok,
+// Side Quest Spanish: publishes the Shorts that are due on Instagram and TikTok (and YouTube comments),
 // run by .github/workflows/publish.yml every 30 minutes (no PC needed).
 // Videos: assets of the "media" release. Data: data/*.json. Tokens: data/tokens.enc,
 // AES-256-GCM with the TOKEN_KEY secret, renewed and re-saved by this script.
@@ -174,6 +174,35 @@ async function publishTikTokZernio(id, c) {
   return `zernio:${p._id} ${st}${p.platforms?.[0]?.platformPostUrl ? ` ${p.platforms[0].platformPostUrl}` : ""}`;
 }
 
+// ---------------------------------------------------------------- YouTube comments
+// A channel comment under a Short once it is public (YouTube refuses comments on private
+// videos). Schedule entry: { id, platform: "ytcomment", at, videoId, text }. The refresh
+// token lives in tokens.yt ({ clientId, clientSecret, refresh }) and needs the Google app
+// "In production" (in "Testing" it dies after 7 days). Pinning has no API: do it in Studio.
+async function ytToken() {
+  const y = tokens.yt;
+  if (!y?.refresh) throw new Error("YouTube not connected");
+  const r = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    body: new URLSearchParams({ client_id: y.clientId, client_secret: y.clientSecret, refresh_token: y.refresh, grant_type: "refresh_token" }),
+  });
+  const j = await r.json();
+  if (!j.access_token) throw Object.assign(new Error(`YouTube token: ${JSON.stringify(j).slice(0, 200)}`), { auth: j.error === "invalid_grant" });
+  return j.access_token;
+}
+async function commentYouTube(s) {
+  if (!s.videoId || !s.text) throw new Error("ytcomment needs videoId and text");
+  const r = await fetch("https://www.googleapis.com/youtube/v3/commentThreads?part=snippet", {
+    method: "POST",
+    headers: { authorization: `Bearer ${await ytToken()}`, "content-type": "application/json" },
+    body: JSON.stringify({ snippet: { videoId: s.videoId, topLevelComment: { snippet: { textOriginal: s.text } } } }),
+  });
+  const j = await r.json();
+  // 403 = the Short is not public yet: the next run retries (within the 6 h window).
+  if (!r.ok) throw new Error(`YouTube comment ${r.status}: ${JSON.stringify(j).slice(0, 200)}`);
+  return `youtube-comment:${j.id}`;
+}
+
 // ---------------------------------------------------------------- due
 async function due(dry) {
   const captions = read(`${D}/captions.json`, {});
@@ -187,6 +216,7 @@ async function due(dry) {
   const viaZernio = config.tiktokMode === "zernio";
   const ready = {
     instagram: !!tokens.ig && !!config.igUserId && !alerts.instagram,
+    ytcomment: !!tokens.yt?.refresh && !alerts.ytcomment,
     tiktok: viaZernio ? !!process.env.ZERNIO_API_KEY && !!config.zernioTiktokAccountId : !!tokens.ttRefresh && !["off", "zernio"].includes(config.tiktokMode),
   };
   const now = new Date().toISOString();
@@ -201,13 +231,18 @@ async function due(dry) {
     console.log(`${s.platform} ${s.id} (due ${s.at})${dry ? " [dry]" : ""}`);
     if (dry) continue;
     try {
-      const ref = s.platform === "instagram" ? await publishInstagram(s.id, captions[s.id]) : viaZernio ? await publishTikTokZernio(s.id, captions[s.id]) : await publishTikTok(s.id, captions[s.id], s.tiktok);
+      const ref = s.platform === "ytcomment" ? await commentYouTube(s) : s.platform === "instagram" ? await publishInstagram(s.id, captions[s.id]) : viaZernio ? await publishTikTokZernio(s.id, captions[s.id]) : await publishTikTok(s.id, captions[s.id], s.tiktok);
       done[`${s.platform}:${s.id}`] = { at: new Date().toISOString(), ref };
       write(`${D}/published.json`, done);
       console.log("  ok", ref);
     } catch (e) {
       failures++;
       console.error("  FAILED", e.message);
+      if (s.platform === "ytcomment" && e.auth) {
+        alerts.ytcomment = { since: new Date().toISOString(), error: e.message.slice(0, 300) };
+        write(`${D}/alerts.json`, alerts);
+        console.error("  YouTube paused: the refresh token is dead. Run youtube:auth, then seal-add.");
+      }
       if (s.platform === "instagram" && e.auth) {
         alerts.instagram = { since: new Date().toISOString(), error: e.message.slice(0, 300) };
         write(`${D}/alerts.json`, alerts);
@@ -231,4 +266,12 @@ else if (cmd === "seal" && arg) {
   if (t.ig && alerts.instagram) { delete alerts.instagram; write(`${D}/alerts.json`, alerts); console.log("instagram alert cleared"); }
   console.log("sealed");
 }
-else console.log("Usage: due [--dry] | seal <tokens.json>");
+else if (cmd === "seal-add" && arg) {
+  // Adds or replaces some tokens and keeps the others (seal replaces them all).
+  const t = { ...openTokens(), ...JSON.parse(fs.readFileSync(arg, "utf8")) };
+  sealTokens(t);
+  const alerts = read(`${D}/alerts.json`, {});
+  if (t.yt && alerts.ytcomment) { delete alerts.ytcomment; write(`${D}/alerts.json`, alerts); console.log("youtube alert cleared"); }
+  console.log("sealed:", Object.keys(t).join(", "));
+}
+else console.log("Usage: due [--dry] | seal <tokens.json> | seal-add <tokens.json>");
