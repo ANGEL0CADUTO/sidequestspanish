@@ -221,7 +221,7 @@ async function commentInstagram(s, done) {
   return `ig-comment:${j.id}`;
 }
 async function commentTikTok(s, done) {
-  const postId = done[`tiktok:${s.id}`]?.ref?.match(/^zernio:(S+)/)?.[1];
+  const postId = done[`tiktok:${s.id}`]?.ref?.match(/^zernio:([^\s]+)/)?.[1];
   if (!postId) throw new Error(`tiktok ${s.id} not published yet`);
   const j = await zernio(`/inbox/comments/${postId}`, {
     method: "POST",
