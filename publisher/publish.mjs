@@ -253,7 +253,23 @@ async function due(dry) {
   const stale = new Date(Date.now() - 6 * 3600e3).toISOString();
   let failures = 0;
   if (alerts.instagram) console.log(`instagram paused since ${alerts.instagram.since}: reconnect it (new token + seal)`);
-  for (const s of schedule.filter((s) => s.at <= now && !done[`${s.platform}:${s.id}`] && ready[s.platform])) {
+  // Comments under every promoted Short (captions[id].comment, from language-story-studio
+  // social/promo.json via build-captions.py): due 10 min after the Short went out on that
+  // platform (YouTube: its scheduled time). No schedule entries needed; explicit ones win.
+  const after10 = (iso) => new Date(Date.parse(iso) + 10 * 60e3).toISOString();
+  const auto = [];
+  for (const [id, c] of Object.entries(captions)) {
+    if (!c.comment) continue;
+    const ig = done[`instagram:${id}`];
+    const tt = done[`tiktok:${id}`];
+    if (c.comment.instagram && ig) auto.push({ id, platform: "igcomment", at: after10(ig.at), text: c.comment.instagram });
+    if (c.comment.tiktok && tt) auto.push({ id, platform: "ttcomment", at: after10(tt.at), text: c.comment.tiktok });
+    if (c.comment.youtube && c.youtubeId && c.youtubeAt) auto.push({ id, platform: "ytcomment", at: after10(c.youtubeAt), videoId: c.youtubeId, text: c.comment.youtube });
+  }
+  const queue = [...new Map([...auto, ...schedule].map((s) => [`${s.platform}:${s.id}`, s])).values()];
+  // auto comments older than the 6 h window are skipped quietly (no «missed» line every run)
+  const quiet = new Set(auto.filter((s) => s.at < stale).map((s) => `${s.platform}:${s.id}`));
+  for (const s of queue.filter((s) => s.at <= now && !done[`${s.platform}:${s.id}`] && ready[s.platform] && !(quiet.has(`${s.platform}:${s.id}`) && !schedule.includes(s)))) {
     // A slot more than 6 h late is never posted in a burst; it waits to be rescheduled.
     if (s.at < stale) { console.log(`${s.platform} ${s.id}: missed (due ${s.at}), reschedule it`); continue; }
     // Direct Post: a Short the creator has not approved yet waits (not an error).
