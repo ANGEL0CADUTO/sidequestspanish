@@ -362,5 +362,13 @@
   "ytcomment:ff8-pagar": {
     "at": "2026-11-20T17:11:01.557Z",
     "ref": "youtube-comment:Ugx8Ao2xjpMKJcJjmmd4AaABAg"
+  },
+  "igcomment:ff8-pagar": {
+    "at": "2026-11-20T17:16:03.062Z",
+    "ref": "ig-comment:18101597201095816"
+  },
+  "ttcomment:ff8-pagar": {
+    "at": "2026-11-20T17:16:03.864Z",
+    "ref": "tt-comment:7710155355145847584"
   }
 }
