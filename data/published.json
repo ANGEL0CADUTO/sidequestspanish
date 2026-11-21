@@ -382,5 +382,13 @@
   "ytcomment:sl-02": {
     "at": "2026-11-21T17:11:00.818Z",
     "ref": "youtube-comment:Ugxt0UUhlL9A3x9dtat4AaABAg"
+  },
+  "igcomment:sl-02": {
+    "at": "2026-11-21T17:16:03.199Z",
+    "ref": "ig-comment:18087160571327881"
+  },
+  "ttcomment:sl-02": {
+    "at": "2026-11-21T17:16:04.664Z",
+    "ref": "tt-comment:7710524121251070753"
   }
 }
