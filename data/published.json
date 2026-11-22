@@ -402,5 +402,13 @@
   "ytcomment:ff8-vaso": {
     "at": "2026-11-22T17:11:01.542Z",
     "ref": "youtube-comment:UgxH0GNLQyOXUkFrcqJ4AaABAg"
+  },
+  "igcomment:ff8-vaso": {
+    "at": "2026-11-22T17:16:02.442Z",
+    "ref": "ig-comment:18037819814672457"
+  },
+  "ttcomment:ff8-vaso": {
+    "at": "2026-11-22T17:16:03.348Z",
+    "ref": "tt-comment:7710868435467158304"
   }
 }
