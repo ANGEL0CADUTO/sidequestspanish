@@ -418,5 +418,17 @@
   "tiktok:sl-03": {
     "at": "2026-11-25T17:02:21.672Z",
     "ref": "zernio:6b0714796cc4daa2a63d1b35 published"
+  },
+  "ytcomment:sl-06": {
+    "at": "2026-11-26T19:39:49.000Z",
+    "ref": "youtube-comment:UgyNgiW_uJVttiAoJ_p4AaABAg"
+  },
+  "instagram:sl-06": {
+    "at": "2026-11-26T19:40:18.658Z",
+    "ref": "https://www.instagram.com/reel/DgN4IHWz1O2/"
+  },
+  "tiktok:sl-06": {
+    "at": "2026-11-26T19:40:57.477Z",
+    "ref": "zernio:6b088b25cf31105e529ba3ba published"
   }
 }
